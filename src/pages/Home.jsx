@@ -1,0 +1,391 @@
+import {
+  faArrowUpFromBracket,
+  faArrowRight,
+  faCircleChevronLeft,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import IconAnalytics from "../assets/icon-analytics.png";
+import HeroImage from "../assets/hero-image.png";
+import Logo from "../assets/mythyaverse-logo.png";
+import { Link } from "react-router-dom";
+import Typewriter from "typewriter-effect";
+import "./style.css";
+
+export default function Home() {
+  const [Resume, setResume] = useState("");
+  const [JobDescription, setJobDescription] = useState("");
+  const [jobDescGenerator, setjobDescGenerator] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const [showJobDescriptionForm, setShowJobDescriptionForm] = useState(false);
+  const [isChecked, setisChecked] = useState(false);
+  const [selectExperienceLevel, setselectExperienceLevel] = useState("");
+  // const [showTooltip, setShowTooltip] = useState(false);
+  const splittedString =
+    "Hello! Your resume is now being analyzed by our sophisticated AI model. This process is meticulous and thorough because we want to provide you with the most accurate and helpful feedback. Just like a human HR expert, our AI is reading through your resume, examining the details of your work experience, education, skills, and more. It's considering the uniqueness of your career journey, the specific roles you've performed, and the distinctive skills you've acquired along the way. In parallel, it's also going through the job description you've provided, understanding the demands and requirements of the role, and the kind of candidate the employer is seeking. Now, it's matching your qualifications with the job's requirements. It's making note of where you're a strong fit and where there might be gaps. And it's not just about matching keywords. The AI understands context, so it's considering factors like whether your experience level aligns with what the job requires, or if your educational background is a match for the role. At the same time, it's preparing comprehensive feedback for you - highlighting your strengths, identifying areas for improvement, and giving you actionable advice on how to make your resume even better. While this may take a minute, we believe in quality over speed. Our aim is to provide you with valuable insights that can truly help you in your job search. Your successful career journey is our ultimate goal. Stay with us for a few more moments. Your personalized resume feedback is on its way!".split(
+      " "
+    );
+
+  const handleChange = (e) => {
+    if (e.target.name === "resume") {
+      setResume(e.target.files[0]);
+    } else if (e.target.name === "job_desc_generator") {
+      setjobDescGenerator(e.target.value);
+    } else if (e.target.name === "job_description") {
+      setJobDescription(e.target.files[0]);
+      setisChecked(false);
+    } else if (e.target.name === "selectExperienceLevel") {
+      setselectExperienceLevel(e.target.value);
+    }
+  };
+
+  const handleResumeSubmit = (event) => {
+    // Handle resume form submission here if needed
+    event.preventDefault();
+  };
+
+  const handleContinue = () => {
+    setShowJobDescriptionForm(true);
+  };
+
+  const handleAnalyze = (e) => {
+    e.preventDefault();
+    if (Resume) {
+      setLoading(true);
+      const data = new FormData();
+      data.append("resume", Resume);
+      if (JobDescription) {
+        data.append("job_description", JobDescription);
+      } else if (jobDescGenerator && selectExperienceLevel) {
+        data.append("job_title", jobDescGenerator);
+        data.append("experience_level", selectExperienceLevel);
+      } else {
+        console.log("Incomplete data!");
+      }
+
+      fetch("https://resume-analyzer.azurewebsites.net/api/analyze", {
+        method: "POST",
+        body: data,
+      })
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error("Network response was not ok");
+          }
+          res.json().then((json) => {
+            const parsedData = {
+              ...json,
+              personal_info: JSON.parse(json.personal_info),
+              score: JSON.parse(json.score),
+            };
+            const jsonString = JSON.stringify(parsedData);
+            localStorage.setItem("mythyaverseparseddata", jsonString);
+            // console.log(json);
+            // console.log(parsedData);
+            setLoading(false);
+            navigate("/analytics");
+          });
+        })
+        .catch((err) => {
+          setLoading(false);
+          alert("Error: " + err.message);
+        });
+    } else {
+      alert("Please upload your Resume in PDF format");
+    }
+  };
+
+  return (
+    <>
+      <div className="w-screen h-screen fixed">
+        <nav className=" border-gray-200 md:-mt-6">
+          <div className="px-10 flex flex-wrap items-center mx-auto space-x-5">
+            <div
+              className="w-full md:w-auto flex -mt-6 md:mt-0 justify-center"
+              id="navbar-default"
+            >
+              <Link
+                to="/"
+                className="block py-2 pl-3 pr-4 text-white rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 "
+              >
+                <img src={Logo} alt="logo" className="w-24" />
+              </Link>
+            </div>
+            <Link to="/home" className="hidden md:flex items-center">
+              <span className="self-center text-xl font-semibold whitespace-nowrap text-white">
+                CareerOdyssey: A MythyaVerse Expedition
+              </span>
+            </Link>
+          </div>
+        </nav>
+        <main className="pt-5 lg:pt-10 h-screen flex flex-col items-center justify-center">
+          <img
+            src={HeroImage}
+            alt="statistical vector graphic"
+            className="absolute xl:bottom-20 bottom-40 right-0 xl:w-auto w-1/2"
+          />
+          <h1 className="absolute top-16 lg:top-20 left-10 md:text-2xl lg:text-3xl text-lg text-left font-bold text-white border-l-4 border-l-white pl-4">
+            <span className="text-[#29b]">Revolutionize</span> Your Job <br />
+            Search with <span className="text-[#29b]">AI-Powered </span>
+            <br />
+            Resume Insights
+          </h1>
+
+          {loading ? (
+            <>
+              <div className="w-[91%] md:w-[36%] lg:w-[19%] relative lg:-top-10 border-[1px] rounded-full border-gray-400 bg-[#222] lg:h-[40%] h-[44%]">
+                <div className="e-loadholder bg-[#222]">
+                  <div className="m-loader">
+                    <span className="e-text text-sm">
+                      <Typewriter
+                        options={{
+                          strings: splittedString,
+                          autoStart: true,
+                          loop: true,
+                        }}
+                      />
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="text-white text-center">
+                *It might take about 1.5 minutes
+              </div>
+            </>
+          ) : (
+            <>
+              {showJobDescriptionForm ? (
+                <form
+                  action=""
+                  className="w-[90%] md:w-auto lg:w-2/5 mx-auto text-center relative md:mt-8 lg:mt-0 lg:-top-10 border-[1px] rounded-[3rem] py-6 md:py-8 lg:py-12 px-3 border-gray-400 flex flex-col items-center justify-center"
+                  onSubmit={handleAnalyze}
+                >
+                  {isChecked ? (
+                    <div className="w-[90%] md:w-4/5 space-y-8">
+                      <FontAwesomeIcon
+                        onClick={() => {
+                          setisChecked(false);
+                        }}
+                        icon={faCircleChevronLeft}
+                        className="text-white flex h-10 w-10"
+                      />
+                      <div className="flex md:space-x-5 items-center justify-center md:justify-end flex-wrap md:flex-nowrap">
+                        <label
+                          htmlFor="dropzone-jg"
+                          className="text-white font-semibold"
+                        >
+                          Enter Job Role
+                        </label>
+                        <div className="flex flex-col items-center justify-center w-[90%] md:w-2/3 rounded-full cursor-pointer bg-[#171718]">
+                          <input
+                            required={true}
+                            placeholder="Enter Job Role"
+                            className="bg-[#171718] text-white py-3 px-4 w-full rounded-full text-center outline-none"
+                            onChange={handleChange}
+                            id="dropzone-jg"
+                            type="text"
+                            value={jobDescGenerator}
+                            name="job_desc_generator"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex md:space-x-5 items-center justify-center md:justify-end flex-wrap md:flex-nowrap">
+                        <label
+                          htmlFor="selectExperienceLevel"
+                          className="text-white font-semibold"
+                        >
+                          Experience
+                        </label>
+                        <div className="flex items-center w-[90%] md:w-2/3 justify-center rounded-full cursor-pointer bg-[#171718]">
+                          <select
+                            required={true}
+                            id="selectExperienceLevel"
+                            name="selectExperienceLevel"
+                            className="bg-[#171718] text-white outline-none mx-3 py-3 rounded-full w-full"
+                            value={selectExperienceLevel}
+                            onChange={handleChange}
+                          >
+                            <option value="">-- Select --</option>
+                            <option value="Intern/Trainee">
+                              Intern/Trainee
+                            </option>
+                            <option value="Entry-Level">Entry-Level</option>
+                            <option value="Junior Level">Junior Level</option>
+                            <option value="Mid-Level">Mid-Level</option>
+                            <option value="Senior Level">Senior Level</option>
+                            <option value="Management Level">
+                              Management Level
+                            </option>
+                          </select>
+                        </div>
+                      </div>
+                      <button
+                        type="submit"
+                        className="bg-white text-black font-semibold text-lg rounded-full mx-auto py-2 px-8 flex items-center justify-center"
+                      >
+                        Analyze{" "}
+                        <img
+                          src={IconAnalytics}
+                          alt=""
+                          className="ml-2 bg-black rounded-full"
+                        />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="w-[90%] md:w-4/5 space-y-4 md:space-y-8">
+                      <div className="text-white md:text-2xl font-semibold">
+                        Add Your Job Description
+                      </div>
+                      <div>
+                        <label
+                          htmlFor="dropzone-jd-file"
+                          className="flex flex-col items-center justify-center w-full rounded-full cursor-pointer bg-[#171718]"
+                        >
+                          <div className="flex items-center justify-center p-5">
+                            <FontAwesomeIcon
+                              icon={faArrowUpFromBracket}
+                              className="text-white"
+                            />
+                            <p className="text-white opacity-50 px-4">
+                              {JobDescription
+                                ? JobDescription.name
+                                : "Drag or upload Job Description (in PDF)"}
+                            </p>
+                          </div>
+                          <input
+                            accept=".pdf"
+                            onChange={handleChange}
+                            id="dropzone-jd-file"
+                            type="file"
+                            className="hidden"
+                            name="job_description"
+                          />
+                        </label>
+                      </div>
+                      <button
+                        type="submit"
+                        className={`bg-white text-black font-semibold text-lg rounded-full mx-auto py-2 px-8 flex items-center justify-center ${
+                          !JobDescription ? "hidden" : ""
+                        }`}
+                      >
+                        Analyze{" "}
+                        <img
+                          src={IconAnalytics}
+                          alt=""
+                          className="ml-2 bg-black rounded-full"
+                        />
+                      </button>
+                      <div className="flex items-center justify-center">
+                        <div className="flex-1 h-[1px] bg-white"></div>
+                        <div className="mx-8 text-white">Or</div>
+                        <div className="flex-1 h-[1px] bg-white"></div>
+                      </div>
+                      <div className="flex items-center justify-center space-x-6">
+                        <input
+                          className="h-6 w-6"
+                          id="checkgenerated"
+                          name="checkgenerated"
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => {
+                            setisChecked(true);
+                            setJobDescription("");
+                          }}
+                        />
+                        <label
+                          htmlFor="checkgenerated"
+                          className="text-white text-left md:font-semibold"
+                        >
+                          Would you like the AI to generate a job description
+                          for you?
+                        </label>
+                      </div>
+                    </div>
+                  )}
+                </form>
+              ) : (
+                <form
+                  action=""
+                  className="w-4/5 md:w-auto lg:w-1/3 mx-auto text-center space-y-8 relative lg:-top-10 border-[1px] rounded-[3rem] py-12 md:py-20 border-gray-400 flex flex-col items-center justify-center"
+                  onSubmit={handleResumeSubmit}
+                >
+                  <div className="">
+                    <div className="text-4xl text-white mb-4">
+                      <FontAwesomeIcon icon={faArrowUpFromBracket} />
+                    </div>
+                    <label
+                      htmlFor="dropzone-resume-file"
+                      className="flex flex-col items-center justify-center w-full rounded-full cursor-pointer bg-[#171718]"
+                      // {...getRSRootProps()}
+                    >
+                      <div className="flex flex-col items-center justify-center p-5">
+                        <p className="text-white md:text-lg opacity-50 px-4">
+                          {Resume
+                            ? Resume.name
+                            : "Drag or upload CV or Resume (in PDF)."}
+                        </p>
+                      </div>
+                      <input
+                        accept=".pdf"
+                        onChange={handleChange}
+                        id="dropzone-resume-file"
+                        type="file"
+                        className="hidden"
+                        name="resume"
+                        // {...getRSInputProps()}
+                      />
+                    </label>
+                  </div>
+                  <button
+                    onClick={handleContinue}
+                    type="submit"
+                    className={`bg-white text-black font-semibold text-lg rounded-full mx-auto py-2 px-4 flex items-center justify-center ${
+                      !Resume ? "invisible" : ""
+                    }`}
+                  >
+                    Continue{" "}
+                    <FontAwesomeIcon icon={faArrowRight} className="mx-2" />
+                  </button>
+                </form>
+              )}
+            </>
+          )}
+          {!loading && (
+            <>
+              <div className="flex w-1/5 items-center justify-center py-5 lg:py-0">
+                <div
+                  className={`w-16 h-2 bg-white mx-2 rounded-full ${
+                    showJobDescriptionForm ? "opacity-50" : ""
+                  }`}
+                  onClick={() => {
+                    setShowJobDescriptionForm(false);
+                  }}
+                ></div>
+                <div
+                  onClick={() => {
+                    setShowJobDescriptionForm(true);
+                  }}
+                  className={`rounded-full w-16 h-2 bg-white ${
+                    !showJobDescriptionForm ? "opacity-50" : ""
+                  } mx-2 ${Resume ? "" : "hidden"}`}
+                ></div>
+              </div>
+              <div className="text-white text-center py-[0.625rem]">
+                Developing and encouraging tech product.{" "}
+                <Link
+                  to="/about"
+                  className="text-indigo-500 font-semibold relative"
+                >
+                  Know about us here
+                </Link>
+              </div>
+            </>
+          )}
+        </main>
+      </div>
+      <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
+      <script src="https://use.fontawesome.com/b5bf1bd49e.js"></script>
+    </>
+  );
+}
