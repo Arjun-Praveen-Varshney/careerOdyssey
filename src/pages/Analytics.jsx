@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "./style.css";
 
 export default function Analytics() {
-  const jsonString = localStorage.getItem("mythyaverseparseddata");
+  const jsonString = localStorage.getItem("careerOdyssey");
   const parsedData = JSON.parse(jsonString);
   // console.log(parsedData);
 

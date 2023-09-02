@@ -1,7 +1,7 @@
 // import { useState } from "react";
 
 const Profile = () => {
-  const jsonString = localStorage.getItem("mythyaverseparseddata");
+  const jsonString = localStorage.getItem("careerOdyssey");
   const parsedData = JSON.parse(jsonString);
   const name = parsedData.personal_info.Name;
   const contactDetails = parsedData.personal_info["Contact Information"];
