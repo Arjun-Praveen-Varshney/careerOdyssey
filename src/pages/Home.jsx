@@ -5,11 +5,10 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import IconAnalytics from "../assets/icon-analytics.png";
 import HeroImage from "../assets/hero-image.png";
 import Logo from "../assets/mythyaverse-logo.png";
-import { Link } from "react-router-dom";
 import Typewriter from "typewriter-effect";
 import "./style.css";
 import { app } from "../firebaseConfig";
@@ -25,12 +24,12 @@ export default function Home() {
   const [jobDescGenerator, setjobDescGenerator] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const [showJobDescriptionForm, setShowJobDescriptionForm] = useState(false);
   const [isChecked, setisChecked] = useState(false);
   const [selectExperienceLevel, setselectExperienceLevel] = useState("");
   let [resumepageText, setresumepageText] = useState("");
   let [jobdescriptionpageText, setjobdescriptionpageText] = useState("");
-  let [parsedData, setparsedData] = useState({});
   const storage = getStorage(app);
   const splittedString =
     "Hello! Your resume is now being analyzed by our sophisticated AI model. This process is meticulous and thorough because we want to provide you with the most accurate and helpful feedback. Just like a human HR expert, our AI is reading through your resume, examining the details of your work experience, education, skills, and more. It's considering the uniqueness of your career journey, the specific roles you've performed, and the distinctive skills you've acquired along the way. In parallel, it's also going through the job description you've provided, understanding the demands and requirements of the role, and the kind of candidate the employer is seeking. Now, it's matching your qualifications with the job's requirements. It's making note of where you're a strong fit and where there might be gaps. And it's not just about matching keywords. The AI understands context, so it's considering factors like whether your experience level aligns with what the job requires, or if your educational background is a match for the role. At the same time, it's preparing comprehensive feedback for you - highlighting your strengths, identifying areas for improvement, and giving you actionable advice on how to make your resume even better. While this may take a minute, we believe in quality over speed. Our aim is to provide you with valuable insights that can truly help you in your job search. Your successful career journey is our ultimate goal. Stay with us for a few more moments. Your personalized resume feedback is on its way!".split(
@@ -122,8 +121,7 @@ export default function Home() {
               },
               {
                 role: "user",
-                content: `Based on the following text, determine if it's a resume or not. \
-              If it's not a resume, return a message saying 'We think this is not a resume, are you sure you uploaded a resume or a CV?'\n\n${resumepageText}`,
+                content: `Based on the following text, determine if it's a resume or not. \n If it's not a resume, return a message saying 'We think this is not a resume, are you sure you uploaded a resume or a CV?'\n\n${resumepageText}`,
               },
             ],
             temperature: 0,
@@ -137,7 +135,8 @@ export default function Home() {
         });
         const isResume = await res1.json();
         if (isResume.choices[0].message.content.toLowerCase() === "resume") {
-          fetch("https://api.openai.com/v1/chat/completions", {
+          let personal_info = {};
+          await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
             body: JSON.stringify({
               model: "gpt-4",
@@ -145,9 +144,7 @@ export default function Home() {
                 {
                   role: "system",
                   content:
-                    "You are a personal information extraction assistant. \
-                                               Extract the information in a structured JSON format. The JSON structure should be as follows: \
-                                               {'Name': '', 'Contact Information': {'Email': '', 'Phone': '', 'Address': '', 'LinkedIn': ''}, 'Summary': ''}",
+                    "You are a personal information extraction assistant. \n Extract the information in a structured JSON format. The JSON structure should be as follows: \n\n {'Name': '', 'Contact Information': {'Email': '', 'Phone': '', 'Address': '', 'LinkedIn': ''}, 'Summary': ''}",
                 },
                 {
                   role: "user",
@@ -172,18 +169,27 @@ export default function Home() {
               if (!res.ok) {
                 throw new Error("Network response was not ok");
               }
-              res.json().then((json) => {
-                parsedData.personal_info = JSON.parse(
-                  json.choices[0].message.content
-                );
-              });
+              res
+                .json()
+                .then((json) => {
+                  personal_info = JSON.parse(json.choices[0].message.content);
+                })
+                .catch((err) => {
+                  setLoading(false);
+                  console.error(err);
+                  alert("An error occurred... Please try again!");
+                  personal_info = {
+                    error:
+                      "AI wasn't able to parse the personal info properly.",
+                  };
+                });
             })
             .catch((err) => {
               setLoading(false);
               alert("Error: " + err.message);
             });
           if (JobDescription || jobdescriptionpageText) {
-            fetch("https://api.openai.com/v1/chat/completions", {
+            await fetch("https://api.openai.com/v1/chat/completions", {
               method: "POST",
               body: JSON.stringify({
                 model: "gpt-4",
@@ -218,9 +224,15 @@ export default function Home() {
                   throw new Error("Network response was not ok");
                 }
                 res.json().then((json) => {
-                  parsedData.score = JSON.parse(
-                    json.choices[0].message.content
+                  localStorage.setItem(
+                    "careerOdyssey",
+                    JSON.stringify({
+                      personal_info: personal_info,
+                      score: JSON.parse(json.choices[0].message.content),
+                    })
                   );
+                  setLoading(false);
+                  navigate("/analytics");
                 });
               })
               .catch((err) => {
@@ -256,7 +268,7 @@ export default function Home() {
               }
             );
             const generatedJobDescription = await res4.json();
-            fetch("https://api.openai.com/v1/chat/completions", {
+            await fetch("https://api.openai.com/v1/chat/completions", {
               method: "POST",
               body: JSON.stringify({
                 model: "gpt-4",
@@ -291,9 +303,15 @@ export default function Home() {
                   throw new Error("Network response was not ok");
                 }
                 res.json().then((json) => {
-                  parsedData.score = JSON.parse(
-                    json.choices[0].message.content
+                  localStorage.setItem(
+                    "careerOdyssey",
+                    JSON.stringify({
+                      personal_info: personal_info,
+                      score: JSON.parse(json.choices[0].message.content),
+                    })
                   );
+                  setLoading(false);
+                  navigate("/analytics");
                 });
               })
               .catch((err) => {
@@ -301,11 +319,9 @@ export default function Home() {
                 alert("Error: " + err.message);
               });
           } else {
+            setLoading(false);
             alert("There is some error with the Job Description.");
           }
-          localStorage.setItem("careerOdyssey", JSON.stringify(parsedData));
-          setLoading(false);
-          navigate("/analytics");
         } else {
           setLoading(false);
           alert(
@@ -326,24 +342,64 @@ export default function Home() {
   return (
     <>
       <div className="w-screen h-screen fixed">
-        <nav className=" border-gray-200 md:-mt-6">
-          <div className="px-10 flex flex-wrap items-center mx-auto space-x-5">
-            <div
-              className="w-full md:w-auto flex -mt-6 md:mt-0 justify-center"
-              id="navbar-default"
-            >
-              <Link
-                to="/"
-                className="block py-2 pl-3 pr-4 text-white rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 "
+        <nav className="border-gray-200 -mt-6">
+          <div className="px-10 flex flex-wrap lg:flex-nowrap items-center mx-auto justify-center md:justify-between">
+            <div className="flex space-x-5">
+              <div
+                className="w-full md:w-auto flex -mt-6 md:mt-0 justify-center"
+                id="navbar-default"
               >
-                <img src={Logo} alt="logo" className="w-24" />
+                <Link
+                  to="/"
+                  className="block py-2 pl-3 pr-4 text-white rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 "
+                >
+                  <img src={Logo} alt="logo" className="w-24" />
+                </Link>
+              </div>
+              <Link to="/home" className="hidden md:flex items-center">
+                <span className="self-center text-xl font-semibold whitespace-nowrap text-white">
+                  CareerOdyssey: A MythyaVerse Expedition
+                </span>
               </Link>
             </div>
-            <Link to="/home" className="hidden md:flex items-center">
-              <span className="self-center text-xl font-semibold whitespace-nowrap text-white">
-                CareerOdyssey: A MythyaVerse Expedition
-              </span>
-            </Link>
+            <div className="flex text-sm md:text-base font-medium">
+              <button
+                onClick={() => {
+                  navigate("/about");
+                }}
+                className={`rounded-full py-2 px-4 ${
+                  location.pathname === "/about"
+                    ? "text-black bg-white"
+                    : "text-white"
+                } mr-2`}
+              >
+                About
+              </button>
+              <button
+                onClick={() => {
+                  navigate("/teams");
+                }}
+                className={`rounded-full py-2 px-4 ${
+                  location.pathname === "/teams"
+                    ? "text-black bg-white"
+                    : "text-white"
+                } mr-2`}
+              >
+                Teams
+              </button>
+              <button
+                onClick={() => {
+                  navigate("/howtouse");
+                }}
+                className={`rounded-full py-2 px-4 ${
+                  location.pathname === "/howtouse"
+                    ? "text-black bg-white"
+                    : "text-white"
+                }`}
+              >
+                How to use
+              </button>
+            </div>
           </div>
         </nav>
         <main className="pt-5 lg:pt-10 h-screen flex flex-col items-center justify-center">
@@ -597,15 +653,6 @@ export default function Home() {
                     !showJobDescriptionForm ? "opacity-50" : ""
                   } mx-2 ${Resume ? "" : "hidden"}`}
                 ></div>
-              </div>
-              <div className="text-white text-center py-[0.625rem]">
-                Developing and encouraging tech product.{" "}
-                <Link
-                  to="/about"
-                  className="text-indigo-500 font-semibold relative"
-                >
-                  Know about us here
-                </Link>
               </div>
             </>
           )}

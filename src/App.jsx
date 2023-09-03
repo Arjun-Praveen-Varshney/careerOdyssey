@@ -9,6 +9,8 @@ import {
   Home as DashboardHome,
 } from "./pages/Dashboard";
 import About from "./pages/About";
+import Teams from "./pages/Teams";
+import HowToUse from "./pages/HowToUse";
 import SplashScreen from "./pages/SplashScreen";
 
 import "./App.css";
@@ -34,8 +36,10 @@ export default function App() {
             <Route path="/home" exact element={<DashboardHome />} />
             <Route path="/analytics" exact element={<DashboardAnalytics />} />
             <Route path="/profile" exact element={<DashboardProfile />} />
+            <Route path="/teams" exact element={<Teams />} />
+            <Route path="/about" exact element={<About />} />
+            <Route path="/howtouse" exact element={<HowToUse />} />
           </Route>
-          <Route path="/about" element={<About />} />
         </Routes>
       </TransitionGroup>
     </div>
