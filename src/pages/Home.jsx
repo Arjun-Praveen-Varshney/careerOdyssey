@@ -72,22 +72,24 @@ export default function Home() {
       try {
         const resumeId = generateRandomId();
 
-        const storageResumeRef = ref(storage, `${resumeId}/resume`);
-        await uploadBytes(storageResumeRef, Resume);
-        const downloadedResumeurl = await getDownloadURL(storageResumeRef);
+        const extractTextFromResume = async () => {
+          const storageResumeRef = ref(storage, `${resumeId}/resume`);
+          await uploadBytes(storageResumeRef, Resume);
+          const downloadedResumeurl = await getDownloadURL(storageResumeRef);
 
-        const resumepdf = await pdfjsLib.getDocument(downloadedResumeurl)
-          .promise;
-        const numPagesResume = resumepdf.numPages;
+          const resumepdf = await pdfjsLib.getDocument(downloadedResumeurl)
+            .promise;
+          const numPagesResume = resumepdf.numPages;
 
-        for (let i = 1; i <= numPagesResume; i++) {
-          const page = await resumepdf.getPage(i);
-          const textContent = await page.getTextContent();
-          resumepageText = textContent.items.map((item) => item.str).join("");
-          // console.log(`Text content of page ${i}: ${pageText}`);
-        }
+          for (let i = 1; i <= numPagesResume; i++) {
+            const page = await resumepdf.getPage(i);
+            const textContent = await page.getTextContent();
+            resumepageText = textContent.items.map((item) => item.str).join("");
+            // console.log(`Text content of page ${i}: ${resumepageText}`);
+          }
+        };
 
-        if (JobDescription) {
+        const extractTextFromJobDescription = async () => {
           const storageJobDescriptionRef = ref(
             storage,
             `${resumeId}/jobdescription`
@@ -106,8 +108,17 @@ export default function Home() {
             jobdescriptionpageText = textContent.items
               .map((item) => item.str)
               .join("");
-            // console.log(`Text content of page ${i}: ${pageText}`);
+            // console.log(`Text content of page ${i}: ${jobdescriptionpageText}`);
           }
+        };
+
+        if (JobDescription) {
+          await Promise.all([
+            extractTextFromResume(),
+            extractTextFromJobDescription(),
+          ]);
+        } else {
+          await extractTextFromResume();
         }
         const res1 = await fetch("https://api.openai.com/v1/chat/completions", {
           method: "POST",
@@ -136,59 +147,62 @@ export default function Home() {
         const isResume = await res1.json();
         if (isResume.choices[0].message.content.toLowerCase() === "resume") {
           let personal_info = {};
-          await fetch("https://api.openai.com/v1/chat/completions", {
-            method: "POST",
-            body: JSON.stringify({
-              model: "gpt-4",
-              messages: [
-                {
-                  role: "system",
-                  content:
-                    "You are a personal information extraction assistant. \n Extract the information in a structured JSON format. The JSON structure should be as follows: \n\n {'Name': '', 'Contact Information': {'Email': '', 'Phone': '', 'Address': '', 'LinkedIn': ''}, 'Summary': ''}",
-                },
-                {
-                  role: "user",
-                  content: `From the following resume, extract the personal information of the candidate in a structured JSON format.\n\n${resumepageText}`,
-                },
-                {
-                  role: "assistant",
-                  content:
-                    '{"Name": "", "Contact Information": {"Email": "null", "Phone": "null", "Address": "null", "LinkedIn": "null"}, "Summary": "null"}',
-                },
-              ],
-              temperature: 0,
-              max_tokens: 1000,
-            }),
-            headers: {
-              Authorization:
-                "Bearer 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",
-              "Content-Type": "application/json",
-            },
-          })
-            .then((res) => {
-              if (!res.ok) {
-                throw new Error("Network response was not ok");
-              }
-              res
-                .json()
-                .then((json) => {
-                  personal_info = JSON.parse(json.choices[0].message.content);
-                })
-                .catch((err) => {
-                  setLoading(false);
-                  console.error(err);
-                  alert("An error occurred... Please try again!");
-                  personal_info = {
-                    error:
-                      "AI wasn't able to parse the personal info properly.",
-                  };
-                });
+          const analyzeResume = async () => {
+            await fetch("https://api.openai.com/v1/chat/completions", {
+              method: "POST",
+              body: JSON.stringify({
+                model: "gpt-4",
+                messages: [
+                  {
+                    role: "system",
+                    content:
+                      "You are a personal information extraction assistant. \n Extract the information in a structured JSON format. The JSON structure should be as follows: \n\n {'Name': '', 'Contact Information': {'Email': '', 'Phone': '', 'Address': '', 'LinkedIn': ''}, 'Summary': ''}",
+                  },
+                  {
+                    role: "user",
+                    content: `From the following resume, extract the personal information of the candidate in a structured JSON format.\n\n${resumepageText}`,
+                  },
+                  {
+                    role: "assistant",
+                    content:
+                      '{"Name": "", "Contact Information": {"Email": "null", "Phone": "null", "Address": "null", "LinkedIn": "null"}, "Summary": "null"}',
+                  },
+                ],
+                temperature: 0,
+                max_tokens: 1000,
+              }),
+              headers: {
+                Authorization:
+                  "Bearer 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",
+                "Content-Type": "application/json",
+              },
             })
-            .catch((err) => {
-              setLoading(false);
-              alert("Error: " + err.message);
-            });
-          if (JobDescription || jobdescriptionpageText) {
+              .then((res) => {
+                if (!res.ok) {
+                  throw new Error("Network response was not ok");
+                }
+                res
+                  .json()
+                  .then((json) => {
+                    personal_info = JSON.parse(json.choices[0].message.content);
+                  })
+                  .catch((err) => {
+                    setLoading(false);
+                    console.error(err);
+                    alert("An error occurred... Please try again!");
+                    personal_info = {
+                      error:
+                        "AI wasn't able to parse the personal info properly.",
+                    };
+                  });
+              })
+              .catch((err) => {
+                setLoading(false);
+                alert("Error: " + err.message);
+              });
+          };
+
+          const analyzeJobDescriptionFromPDF = async () => {
             await fetch("https://api.openai.com/v1/chat/completions", {
               method: "POST",
               body: JSON.stringify({
@@ -239,7 +253,9 @@ export default function Home() {
                 setLoading(false);
                 alert("Error: " + err.message);
               });
-          } else if (jobDescGenerator && selectExperienceLevel) {
+          };
+
+          const analyzeJobDescriptionFromTextUsingAI = async () => {
             const res4 = await fetch(
               "https://api.openai.com/v1/chat/completions",
               {
@@ -318,6 +334,18 @@ export default function Home() {
                 setLoading(false);
                 alert("Error: " + err.message);
               });
+          };
+
+          if (JobDescription || jobdescriptionpageText) {
+            await Promise.all([
+              analyzeResume(),
+              analyzeJobDescriptionFromPDF(),
+            ]);
+          } else if (jobDescGenerator && selectExperienceLevel) {
+            await Promise.all([
+              analyzeResume(),
+              analyzeJobDescriptionFromTextUsingAI(),
+            ]);
           } else {
             setLoading(false);
             alert("There is some error with the Job Description.");
@@ -338,6 +366,281 @@ export default function Home() {
       alert("Please upload your Resume in PDF format");
     }
   };
+
+  // const handleAnalyze = async (e) => {
+  //   e.preventDefault();
+  //   if (Resume) {
+  //     setLoading(true);
+
+  //     try {
+  //       const resumeId = generateRandomId();
+
+  //       const storageResumeRef = ref(storage, `${resumeId}/resume`);
+  //       await uploadBytes(storageResumeRef, Resume);
+  //       const downloadedResumeurl = await getDownloadURL(storageResumeRef);
+
+  //       const resumepdf = await pdfjsLib.getDocument(downloadedResumeurl)
+  //         .promise;
+  //       const numPagesResume = resumepdf.numPages;
+
+  //       for (let i = 1; i <= numPagesResume; i++) {
+  //         const page = await resumepdf.getPage(i);
+  //         const textContent = await page.getTextContent();
+  //         resumepageText = textContent.items.map((item) => item.str).join("");
+  //         // console.log(`Text content of page ${i}: ${pageText}`);
+  //       }
+
+  //       if (JobDescription) {
+  //         const storageJobDescriptionRef = ref(
+  //           storage,
+  //           `${resumeId}/jobdescription`
+  //         );
+  //         await uploadBytes(storageJobDescriptionRef, JobDescription);
+  //         const downloadedJobDescriptionurl = await getDownloadURL(
+  //           storageJobDescriptionRef
+  //         );
+  //         const jobdescriptionpdf = await pdfjsLib.getDocument(
+  //           downloadedJobDescriptionurl
+  //         ).promise;
+  //         const numPagesJobDescription = jobdescriptionpdf.numPages;
+  //         for (let i = 1; i <= numPagesJobDescription; i++) {
+  //           const page = await jobdescriptionpdf.getPage(i);
+  //           const textContent = await page.getTextContent();
+  //           jobdescriptionpageText = textContent.items
+  //             .map((item) => item.str)
+  //             .join("");
+  //           // console.log(`Text content of page ${i}: ${pageText}`);
+  //         }
+  //       }
+  //       const res1 = await fetch("https://api.openai.com/v1/chat/completions", {
+  //         method: "POST",
+  //         body: JSON.stringify({
+  //           model: "gpt-4",
+  //           messages: [
+  //             {
+  //               role: "system",
+  //               content:
+  //                 "You are a resume classification assistant. You either reply with 'resume' or 'not resume', to-the-point answers with no elaboration.",
+  //             },
+  //             {
+  //               role: "user",
+  //               content: `Based on the following text, determine if it's a resume or not. \n If it's not a resume, return a message saying 'We think this is not a resume, are you sure you uploaded a resume or a CV?'\n\n${resumepageText}`,
+  //             },
+  //           ],
+  //           temperature: 0,
+  //           max_tokens: 20,
+  //         }),
+  //         headers: {
+  //           Authorization:
+  //             "Bearer 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",
+  //           "Content-Type": "application/json",
+  //         },
+  //       });
+  //       const isResume = await res1.json();
+  //       if (isResume.choices[0].message.content.toLowerCase() === "resume") {
+  //         let personal_info = {};
+  //         await fetch("https://api.openai.com/v1/chat/completions", {
+  //           method: "POST",
+  //           body: JSON.stringify({
+  //             model: "gpt-4",
+  //             messages: [
+  //               {
+  //                 role: "system",
+  //                 content:
+  //                   "You are a personal information extraction assistant. \n Extract the information in a structured JSON format. The JSON structure should be as follows: \n\n {'Name': '', 'Contact Information': {'Email': '', 'Phone': '', 'Address': '', 'LinkedIn': ''}, 'Summary': ''}",
+  //               },
+  //               {
+  //                 role: "user",
+  //                 content: `From the following resume, extract the personal information of the candidate in a structured JSON format.\n\n${resumepageText}`,
+  //               },
+  //               {
+  //                 role: "assistant",
+  //                 content:
+  //                   '{"Name": "", "Contact Information": {"Email": "null", "Phone": "null", "Address": "null", "LinkedIn": "null"}, "Summary": "null"}',
+  //               },
+  //             ],
+  //             temperature: 0,
+  //             max_tokens: 1000,
+  //           }),
+  //           headers: {
+  //             Authorization:
+  //               "Bearer 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",
+  //             "Content-Type": "application/json",
+  //           },
+  //         })
+  //           .then((res) => {
+  //             if (!res.ok) {
+  //               throw new Error("Network response was not ok");
+  //             }
+  //             res
+  //               .json()
+  //               .then((json) => {
+  //                 personal_info = JSON.parse(json.choices[0].message.content);
+  //               })
+  //               .catch((err) => {
+  //                 setLoading(false);
+  //                 console.error(err);
+  //                 alert("An error occurred... Please try again!");
+  //                 personal_info = {
+  //                   error:
+  //                     "AI wasn't able to parse the personal info properly.",
+  //                 };
+  //               });
+  //           })
+  //           .catch((err) => {
+  //             setLoading(false);
+  //             alert("Error: " + err.message);
+  //           });
+  //         if (JobDescription || jobdescriptionpageText) {
+  //           await fetch("https://api.openai.com/v1/chat/completions", {
+  //             method: "POST",
+  //             body: JSON.stringify({
+  //               model: "gpt-4",
+  //               max_tokens: 1000,
+  //               temperature: 0.5,
+  //               //   stream: true,
+  //               messages: [
+  //                 {
+  //                   role: "system",
+  //                   content:
+  //                     "You are a career advisor and your task is to first provide a score out of 10 based on how well the resume matches the job description. Then, provide detailed, constructive feedback on the candidate's resume, pointing out the areas where the resume matches the job description and where it falls short. Also, suggest improvements that could make the resume better aligned with the job description. Please provide the score and feedback in a structured JSON format.",
+  //                 },
+  //                 {
+  //                   role: "user",
+  //                   content: `The candidate's resume contains the following information:\n${resumepageText}\nThe job description for the position they're applying for is as follows:\n${jobdescriptionpageText}\nFirst, provide a score out of 10 for how well the resume matches the job description. Then, provide detailed feedback on what's missing and what could be improved in the resume based on this score.`,
+  //                 },
+  //                 {
+  //                   role: "assistant",
+  //                   content:
+  //                     "{'score': 7,'feedback': 'The candidate has a strong background in... However, they could improve their resume by...'}",
+  //                 },
+  //               ],
+  //             }),
+  //             headers: {
+  //               Authorization:
+  //                 "Bearer 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",
+  //               "Content-Type": "application/json",
+  //             },
+  //           })
+  //             .then((res) => {
+  //               if (!res.ok) {
+  //                 throw new Error("Network response was not ok");
+  //               }
+  //               res.json().then((json) => {
+  //                 localStorage.setItem(
+  //                   "careerOdyssey",
+  //                   JSON.stringify({
+  //                     personal_info: personal_info,
+  //                     score: JSON.parse(json.choices[0].message.content),
+  //                   })
+  //                 );
+  //                 setLoading(false);
+  //                 navigate("/analytics");
+  //               });
+  //             })
+  //             .catch((err) => {
+  //               setLoading(false);
+  //               alert("Error: " + err.message);
+  //             });
+  //         } else if (jobDescGenerator && selectExperienceLevel) {
+  //           const res4 = await fetch(
+  //             "https://api.openai.com/v1/chat/completions",
+  //             {
+  //               method: "POST",
+  //               body: JSON.stringify({
+  //                 model: "gpt-4",
+  //                 messages: [
+  //                   {
+  //                     role: "system",
+  //                     content:
+  //                       "You are a job description generation assistant. Provide a professional and detailed job description based on the provided job title and experience level. Assume the required skills, responsibilities, and qualifications appropriate for the role.",
+  //                   },
+  //                   {
+  //                     role: "user",
+  //                     content: `Generate a job description for the position of ${jobDescGenerator}. The desired experience level is ${selectExperienceLevel}. Assume the required skills, responsibilities, and qualifications based on the job title and experience level.`,
+  //                   },
+  //                 ],
+  //                 temperature: 0.5,
+  //                 max_tokens: 1000,
+  //               }),
+  //               headers: {
+  //                 Authorization:
+  //                   "Bearer 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",
+  //                 "Content-Type": "application/json",
+  //               },
+  //             }
+  //           );
+  //           const generatedJobDescription = await res4.json();
+  //           await fetch("https://api.openai.com/v1/chat/completions", {
+  //             method: "POST",
+  //             body: JSON.stringify({
+  //               model: "gpt-4",
+  //               max_tokens: 1000,
+  //               temperature: 0.5,
+  //               //   stream: true,
+  //               messages: [
+  //                 {
+  //                   role: "system",
+  //                   content:
+  //                     "You are a career advisor and your task is to first provide a score out of 10 based on how well the resume matches the job description. Then, provide detailed, constructive feedback on the candidate's resume, pointing out the areas where the resume matches the job description and where it falls short. Also, suggest improvements that could make the resume better aligned with the job description. Please provide the score and feedback in a structured JSON format.",
+  //                 },
+  //                 {
+  //                   role: "user",
+  //                   content: `The candidate's resume contains the following information:\n${resumepageText}\nThe job description for the position they're applying for is as follows:\n${generatedJobDescription["choices"][0]["message"]["content"]}\nFirst, provide a score out of 10 for how well the resume matches the job description. Then, provide detailed feedback on what's missing and what could be improved in the resume based on this score.`,
+  //                 },
+  //                 {
+  //                   role: "assistant",
+  //                   content:
+  //                     "{'score': 7,'feedback': 'The candidate has a strong background in... However, they could improve their resume by...'}",
+  //                 },
+  //               ],
+  //             }),
+  //             headers: {
+  //               Authorization:
+  //                 "Bearer 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",
+  //               "Content-Type": "application/json",
+  //             },
+  //           })
+  //             .then((res) => {
+  //               if (!res.ok) {
+  //                 throw new Error("Network response was not ok");
+  //               }
+  //               res.json().then((json) => {
+  //                 localStorage.setItem(
+  //                   "careerOdyssey",
+  //                   JSON.stringify({
+  //                     personal_info: personal_info,
+  //                     score: JSON.parse(json.choices[0].message.content),
+  //                   })
+  //                 );
+  //                 setLoading(false);
+  //                 navigate("/analytics");
+  //               });
+  //             })
+  //             .catch((err) => {
+  //               setLoading(false);
+  //               alert("Error: " + err.message);
+  //             });
+  //         } else {
+  //           setLoading(false);
+  //           alert("There is some error with the Job Description.");
+  //         }
+  //       } else {
+  //         setLoading(false);
+  //         alert(
+  //           "We think this is not a resume, are you sure you uploaded a resume or a CV?"
+  //         );
+  //       }
+  //     } catch (error) {
+  //       setLoading(false);
+  //       alert(
+  //         "An error occurred while processing your resume or job description. Please try again!"
+  //       );
+  //     }
+  //   } else {
+  //     alert("Please upload your Resume in PDF format");
+  //   }
+  // };
 
   return (
     <>
