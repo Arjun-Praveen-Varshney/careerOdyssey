@@ -28,8 +28,8 @@ export default function Home() {
   const [showJobDescriptionForm, setShowJobDescriptionForm] = useState(false);
   const [isChecked, setisChecked] = useState(false);
   const [selectExperienceLevel, setselectExperienceLevel] = useState("");
-  let [resumepageText, setresumepageText] = useState("");
-  let [jobdescriptionpageText, setjobdescriptionpageText] = useState("");
+  let resumepageText = "";
+  let jobdescriptionpageText = "";
   const storage = getStorage(app);
   const splittedString =
     "Hello! Your resume is now being analyzed by our sophisticated AI model. This process is meticulous and thorough because we want to provide you with the most accurate and helpful feedback. Just like a human HR expert, our AI is reading through your resume, examining the details of your work experience, education, skills, and more. It's considering the uniqueness of your career journey, the specific roles you've performed, and the distinctive skills you've acquired along the way. In parallel, it's also going through the job description you've provided, understanding the demands and requirements of the role, and the kind of candidate the employer is seeking. Now, it's matching your qualifications with the job's requirements. It's making note of where you're a strong fit and where there might be gaps. And it's not just about matching keywords. The AI understands context, so it's considering factors like whether your experience level aligns with what the job requires, or if your educational background is a match for the role. At the same time, it's preparing comprehensive feedback for you - highlighting your strengths, identifying areas for improvement, and giving you actionable advice on how to make your resume even better. While this may take a minute, we believe in quality over speed. Our aim is to provide you with valuable insights that can truly help you in your job search. Your successful career journey is our ultimate goal. Stay with us for a few more moments. Your personalized resume feedback is on its way!".split(
@@ -84,7 +84,10 @@ export default function Home() {
           for (let i = 1; i <= numPagesResume; i++) {
             const page = await resumepdf.getPage(i);
             const textContent = await page.getTextContent();
-            resumepageText = textContent.items.map((item) => item.str).join("");
+            const extractedResumeText = textContent.items
+              .map((item) => item.str)
+              .join("");
+            resumepageText += extractedResumeText;
             // console.log(`Text content of page ${i}: ${resumepageText}`);
           }
         };
@@ -105,9 +108,10 @@ export default function Home() {
           for (let i = 1; i <= numPagesJobDescription; i++) {
             const page = await jobdescriptionpdf.getPage(i);
             const textContent = await page.getTextContent();
-            jobdescriptionpageText = textContent.items
+            const extractedJobDescriptionText = textContent.items
               .map((item) => item.str)
               .join("");
+            jobdescriptionpageText += extractedJobDescriptionText;
             // console.log(`Text content of page ${i}: ${jobdescriptionpageText}`);
           }
         };
@@ -680,7 +684,7 @@ export default function Home() {
               </button>
               <button
                 onClick={() => {
-                  navigate("/teams");
+                  navigate("/about");
                 }}
                 className={`rounded-full py-2 px-4 ${
                   location.pathname === "/teams"
@@ -692,7 +696,7 @@ export default function Home() {
               </button>
               <button
                 onClick={() => {
-                  navigate("/howtouse");
+                  navigate("/about");
                 }}
                 className={`rounded-full py-2 px-4 ${
                   location.pathname === "/howtouse"
@@ -735,9 +739,9 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-              <div className="text-white text-center">
+              {/* <div className="text-white text-center">
                 *It might take about 1.5 minutes
-              </div>
+              </div> */}
             </>
           ) : (
             <>
