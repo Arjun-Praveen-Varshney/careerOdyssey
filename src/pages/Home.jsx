@@ -143,8 +143,7 @@ export default function Home() {
             max_tokens: 20,
           }),
           headers: {
-            Authorization:
-              "Bearer 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",
+            Authorization: `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
             "Content-Type": "application/json",
           },
         });
@@ -176,8 +175,7 @@ export default function Home() {
                 max_tokens: 1000,
               }),
               headers: {
-                Authorization:
-                  "Bearer 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",
+                Authorization: `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
                 "Content-Type": "application/json",
               },
             })
@@ -232,8 +230,7 @@ export default function Home() {
                 ],
               }),
               headers: {
-                Authorization:
-                  "Bearer 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",
+                Authorization: `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
                 "Content-Type": "application/json",
               },
             })
@@ -281,8 +278,7 @@ export default function Home() {
                   max_tokens: 1000,
                 }),
                 headers: {
-                  Authorization:
-                    "Bearer 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",
+                  Authorization: `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
                   "Content-Type": "application/json",
                 },
               }
@@ -313,8 +309,7 @@ export default function Home() {
                 ],
               }),
               headers: {
-                Authorization:
-                  "Bearer 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",
+                Authorization: `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
                 "Content-Type": "application/json",
               },
             })
@@ -436,7 +431,7 @@ export default function Home() {
   //         }),
   //         headers: {
   //           Authorization:
-  //             "Bearer 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",
+  //             `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
   //           "Content-Type": "application/json",
   //         },
   //       });
@@ -468,7 +463,7 @@ export default function Home() {
   //           }),
   //           headers: {
   //             Authorization:
-  //               "Bearer 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",
+  //               `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
   //             "Content-Type": "application/json",
   //           },
   //         })
@@ -522,7 +517,7 @@ export default function Home() {
   //             }),
   //             headers: {
   //               Authorization:
-  //                 "Bearer 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",
+  //                 `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
   //               "Content-Type": "application/json",
   //             },
   //           })
@@ -569,7 +564,7 @@ export default function Home() {
   //               }),
   //               headers: {
   //                 Authorization:
-  //                   "Bearer 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",
+  //                   `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
   //                 "Content-Type": "application/json",
   //               },
   //             }
@@ -601,7 +596,7 @@ export default function Home() {
   //             }),
   //             headers: {
   //               Authorization:
-  //                 "Bearer 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",
+  //                 `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
   //               "Content-Type": "application/json",
   //             },
   //           })
