@@ -84,7 +84,7 @@ const Teams = () => {
           <div className="mt-4 bg-[#646464] h-1 mx-auto rounded-full"></div>
         </div>
         <div className="relative">
-          <div className="absolute z-0 w-[90%] -my-8 left-28 h-full border-[1px] rounded-3xl"></div>
+          <div className="absolute z-0 w-[90%] -my-8 right-4 lg:right-auto lg:left-28 h-full border-[1px] opacity-50 rounded-3xl"></div>
           <div className="relative w-[90%] z-10 py-20 my-20 mx-auto border-[1px] px-8 text-white rounded-3xl space-y-16 bg-[#151518]">
             <div className="flex flex-col space-y-3 border-l-4 border-white text-white pl-8">
               <div className="font-semibold text-2xl">Team</div>
@@ -239,7 +239,7 @@ const Teams = () => {
           </div>
         </div>
         <div className="relative">
-          <div className="absolute z-0 w-[90%] -my-8 left-28 h-full border-[1px] rounded-3xl"></div>
+          <div className="absolute z-0 w-[90%] -my-8 right-4 lg:right-auto lg:left-28 h-full border-[1px] opacity-50 rounded-3xl"></div>
           <div className="relative w-[90%] z-10 py-20 my-20 mx-auto border-[1px] px-8 text-white rounded-3xl space-y-16 bg-[#151518]">
             <div className="flex flex-col space-y-3 border-l-4 border-white text-white pl-8">
               <div className="font-semibold text-2xl">Advisors</div>
@@ -315,7 +315,7 @@ const Teams = () => {
           </div>
         </div>
         <div className="relative">
-          <div className="absolute z-0 w-[90%] -my-8 left-28 h-full border-[1px] rounded-3xl"></div>
+          <div className="absolute z-0 w-[90%] -my-8 right-4 lg:right-auto lg:left-28 h-full border-[1px] opacity-50 rounded-3xl"></div>
           <div className="relative w-[90%] z-10 py-12 my-20 mx-auto border-[1px] px-8 text-white rounded-3xl bg-[#151518]">
             <div className="flex flex-col space-y-3 border-l-4 border-white text-white pl-8">
               <div className="font-semibold text-2xl">

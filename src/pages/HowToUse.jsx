@@ -2,6 +2,9 @@ import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Logo from "../assets/mythyaverse-logo.png";
 import img1 from "../assets/abouthome2.png";
+import img2 from "../assets/abouthome3.png";
+import img3 from "../assets/abouthome4.png";
+import img4 from "../assets/abouthome5.png";
 
 const HowToUse = () => {
   const navigate = useNavigate();
@@ -76,31 +79,120 @@ const HowToUse = () => {
           <div className=""> in few steps</div>
           <div className="mt-4 bg-[#646464] h-1 mx-auto rounded-full w-3/4"></div>
         </div>
-        <div className="my-8 flex flex-col items-center">
+        <div className="my-8 flex flex-col lg:items-center mx-4 lg:mx-0 space-y-8 lg:space-y-0">
           <div className="flex items-center">
-            <div className="border-[1px] border-[#646464] rounded-full h-7 w-7 inline-flex items-center justify-center text-center">
-              <div className="bg-white rounded-full h-4 w-4"></div>
+            <div className="border-[1px] border-white border-opacity-50 rounded-full h-7 w-7 inline-flex items-center justify-center text-center">
+              <div className="bg-[#D9D9D9] rounded-full h-4 w-4"></div>
             </div>
             <div className="p-1 ml-10 border-[1px] absolute rounded-lg">
               <div className="inline-flex text-white mx-4 font-semibold">
                 Step 1
               </div>
             </div>
-            <div className="inline-flex absolute ml-40 text-white">
+            <div className="inline-flex absolute ml-40 text-white font-semibold">
               Upload your Resume/CV
             </div>
           </div>
-          <div className="border-l-2 pl-8">
-            <div className="z-0 h-[231px] w-[462px] border-[1px] absolute"></div>
-            <img
-              className="z-1 absolute"
-              src={img1}
-              alt="howtouse-1"
-              height={231}
-              width={462}
-            />
+          <div className="flex w-full">
+            <div className="flex-1 lg:block hidden"></div>
+            <div className="lg:border-l-2 lg:border-[#D9D9D9] flex-1 my-6">
+              <div className="pl-3 lg:pl-[4.5rem] relative overflow-hidden lg:overflow-visible">
+                <div className="z-0 h-[231px] w-[462px] border-[1px] top-3 left-8 lg:left-24 absolute opacity-50"></div>
+                <img
+                  className="z-10 relative"
+                  src={img1}
+                  alt="howtouse-1"
+                  height={231}
+                  width={462}
+                />
+              </div>
+            </div>
           </div>
-          <div className="text-white">hello</div>
+          <div className="flex lg:flex-row-reverse items-center">
+            <div className="border-[1px] border-white border-opacity-50 rounded-full h-7 w-7 inline-flex items-center justify-center text-center">
+              <div className="bg-[#D9D9D9] rounded-full h-4 w-4"></div>
+            </div>
+            <div className="p-1 ml-10 lg:ml-0 lg:mr-10 border-[1px] absolute rounded-lg">
+              <div className="inline-flex text-white mx-4 font-semibold">
+                Step 2
+              </div>
+            </div>
+            <div className="inline-flex absolute ml-40 lg:ml-0 lg:mr-40 text-white font-semibold">
+              Add Job Description or Generate using AI
+            </div>
+          </div>
+          <div className="flex w-full">
+            <div className="lg:border-r-2 lg:border-[#D9D9D9] flex-1 my-6">
+              <div className="relative pl-3 lg:pl-0 lg:pr-[4.5rem] lg:flex lg:justify-end overflow-hidden lg:overflow-visible">
+                <div className="z-0 h-[231px] w-[462px] border-[1px] top-3 left-8 lg:left-auto lg:right-12 absolute opacity-50"></div>
+                <img
+                  className="z-10 relative"
+                  src={img2}
+                  alt="howtouse-2"
+                  height={231}
+                  width={462}
+                />
+              </div>
+            </div>
+            <div className="flex-1 lg:block hidden"></div>
+          </div>
+          <div className="flex items-center">
+            <div className="border-[1px] border-white border-opacity-50 rounded-full h-7 w-7 inline-flex items-center justify-center text-center">
+              <div className="bg-[#D9D9D9] rounded-full h-4 w-4"></div>
+            </div>
+            <div className="p-1 ml-10 border-[1px] absolute rounded-lg">
+              <div className="inline-flex text-white mx-4 font-semibold">
+                Step 3
+              </div>
+            </div>
+            <div className="inline-flex absolute ml-40 text-white font-semibold">
+              Select Job role and Experience level
+            </div>
+          </div>
+          <div className="flex w-full">
+            <div className="flex-1 lg:block hidden"></div>
+            <div className="lg:border-l-2 lg:border-[#D9D9D9] flex-1 my-6">
+              <div className="pl-3 lg:pl-[4.5rem] relative overflow-hidden lg:overflow-visible">
+                <div className="z-0 h-[231px] w-[462px] border-[1px] top-3 left-8 lg:left-24 absolute opacity-50"></div>
+                <img
+                  className="z-10 relative"
+                  src={img3}
+                  alt="howtouse-3"
+                  height={231}
+                  width={462}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="flex lg:flex-row-reverse items-center">
+            <div className="border-[1px] border-white border-opacity-50 rounded-full h-7 w-7 inline-flex items-center justify-center text-center">
+              <div className="bg-[#D9D9D9] rounded-full h-4 w-4"></div>
+            </div>
+            <div className="p-1 ml-10 lg:ml-0 lg:mr-10 border-[1px] absolute rounded-lg">
+              <div className="inline-flex text-white mx-4 font-semibold">
+                Step 4
+              </div>
+            </div>
+            <div className="inline-flex absolute ml-40 lg:ml-0 lg:mr-40 text-white font-semibold">
+              Improve your CV or Resume with CareerOdyssey result and feedback
+            </div>
+          </div>
+          <div className="flex w-full">
+            <div className="lg:border-r-2 lg:border-[#D9D9D9] flex-1 my-6">
+              <div className="relative pl-3 lg:pl-0 lg:pr-[4.5rem] lg:flex lg:justify-end overflow-hidden lg:overflow-visible">
+                <div className="z-0 h-[231px] w-[462px] border-[1px] top-3 left-8 lg:left-auto lg:right-12 absolute opacity-50"></div>
+                <img
+                  className="z-10 relative"
+                  src={img4}
+                  alt="howtouse-4"
+                  height={231}
+                  width={462}
+                />
+              </div>
+            </div>
+            <div className="flex-1 lg:block hidden"></div>
+          </div>
+          <div className=""></div>
           <div className=""></div>
           <div className=""></div>
           <div className=""></div>
