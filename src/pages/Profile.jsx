@@ -32,7 +32,7 @@ const Profile = () => {
             >
               <div className="md:w-1/5 font-semibold">{key}:</div>
               <div className="w-[90%] md:w-4/5 overflow-auto lg:overflow-visible">
-                {value}
+                {typeof value === "object" ? value.join(" ") : value}
               </div>
             </div>
           );

@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Logo from "../assets/mythyaverse-logo.png";
+import img1 from "../assets/abouthome2.png";
 
 const HowToUse = () => {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ const HowToUse = () => {
               </span>
             </Link>
           </div>
-          <div className="flex text-sm md:text-base font-medium">
+          <div className="flex text-xs md:text-base font-medium">
             <button
               onClick={() => {
                 navigate("/about");
@@ -67,6 +68,47 @@ const HowToUse = () => {
           </div>
         </div>
       </nav>
+      <main className="mt-5">
+        <div className="mx-auto text-center text-white font-[700] text-3xl w-fit">
+          <div className="">
+            Get your <span className="text-[#2684FC]">Resume Analyzed</span>
+          </div>
+          <div className=""> in few steps</div>
+          <div className="mt-4 bg-[#646464] h-1 mx-auto rounded-full w-3/4"></div>
+        </div>
+        <div className="my-8 flex flex-col items-center">
+          <div className="flex items-center">
+            <div className="border-[1px] border-[#646464] rounded-full h-7 w-7 inline-flex items-center justify-center text-center">
+              <div className="bg-white rounded-full h-4 w-4"></div>
+            </div>
+            <div className="p-1 ml-10 border-[1px] absolute rounded-lg">
+              <div className="inline-flex text-white mx-4 font-semibold">
+                Step 1
+              </div>
+            </div>
+            <div className="inline-flex absolute ml-40 text-white">
+              Upload your Resume/CV
+            </div>
+          </div>
+          <div className="border-l-2 pl-8">
+            <div className="z-0 h-[231px] w-[462px] border-[1px] absolute"></div>
+            <img
+              className="z-1 absolute"
+              src={img1}
+              alt="howtouse-1"
+              height={231}
+              width={462}
+            />
+          </div>
+          <div className="text-white">hello</div>
+          <div className=""></div>
+          <div className=""></div>
+          <div className=""></div>
+          <div className=""></div>
+          <div className=""></div>
+          <div className=""></div>
+        </div>
+      </main>
     </div>
   );
 };

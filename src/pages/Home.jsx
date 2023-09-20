@@ -667,7 +667,7 @@ export default function Home() {
                 </span>
               </Link>
             </div>
-            <div className="flex text-sm md:text-base font-medium">
+            <div className="flex text-xs md:text-base font-medium">
               <button
                 onClick={() => {
                   navigate("/about");
@@ -682,7 +682,7 @@ export default function Home() {
               </button>
               <button
                 onClick={() => {
-                  navigate("/about");
+                  navigate("/teams");
                 }}
                 className={`rounded-full py-2 px-4 ${
                   location.pathname === "/teams"
@@ -694,7 +694,7 @@ export default function Home() {
               </button>
               <button
                 onClick={() => {
-                  navigate("/about");
+                  navigate("/howtouse");
                 }}
                 className={`rounded-full py-2 px-4 ${
                   location.pathname === "/howtouse"
@@ -714,8 +714,9 @@ export default function Home() {
             className="absolute xl:bottom-20 bottom-40 right-0 xl:w-auto w-1/2"
           />
           <h1 className="absolute top-16 lg:top-20 left-10 md:text-2xl lg:text-3xl text-lg text-left font-bold text-white border-l-4 border-l-white pl-4">
-            <span className="text-[#29b]">Revolutionize</span> Your Job <br />
-            Search with <span className="text-[#29b]">AI-Powered </span>
+            <span className="text-[#2684FC]">Revolutionize</span> Your Job{" "}
+            <br />
+            Search with <span className="text-[#2684FC]">AI-Powered </span>
             <br />
             Resume Insights
           </h1>
